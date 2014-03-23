@@ -26,12 +26,12 @@ public:
 
 private:
 
-  quint8 hMin;
-  quint8 sMin;
-  quint8 vMin;
-  quint8 hMax;
-  quint8 sMax;
-  quint8 vMax;
+  quint8 xMin;
+  quint8 yMin;
+  quint8 zMin;
+  quint8 xMax;
+  quint8 yMax;
+  quint8 zMax;
 
 
   SettingsWidget *mySettingsWidget;

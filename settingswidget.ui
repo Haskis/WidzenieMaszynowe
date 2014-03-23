@@ -30,14 +30,14 @@
         <item>
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>hMin</string>
+           <string>xMin</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>hMax</string>
+           <string>xMax</string>
           </property>
          </widget>
         </item>
@@ -46,7 +46,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QSlider" name="horizontalSliderHMin">
+         <widget class="QSlider" name="horizontalSliderXMin">
           <property name="maximum">
            <number>180</number>
           </property>
@@ -59,15 +59,15 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="horizontalSliderHMax">
+         <widget class="QSlider" name="horizontalSliderXMax">
           <property name="maximum">
            <number>255</number>
           </property>
           <property name="value">
-           <number>20</number>
+           <number>255</number>
           </property>
           <property name="sliderPosition">
-           <number>20</number>
+           <number>255</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -85,14 +85,14 @@
         <item>
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>sMin</string>
+           <string>yMin</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>sMax</string>
+           <string>yMax</string>
           </property>
          </widget>
         </item>
@@ -101,15 +101,15 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QSlider" name="horizontalSliderSMin">
+         <widget class="QSlider" name="horizontalSliderYMin">
           <property name="maximum">
            <number>255</number>
           </property>
           <property name="value">
-           <number>10</number>
+           <number>135</number>
           </property>
           <property name="sliderPosition">
-           <number>10</number>
+           <number>135</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -117,12 +117,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="horizontalSliderSMax">
+         <widget class="QSlider" name="horizontalSliderYMax">
           <property name="maximum">
            <number>255</number>
           </property>
           <property name="value">
-           <number>150</number>
+           <number>175</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -140,14 +140,14 @@
         <item>
          <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>vMin</string>
+           <string>zMin</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_6">
           <property name="text">
-           <string>vMax</string>
+           <string>zMax</string>
           </property>
          </widget>
         </item>
@@ -156,15 +156,15 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QSlider" name="horizontalSliderVMin">
+         <widget class="QSlider" name="horizontalSliderZMin">
           <property name="maximum">
            <number>255</number>
           </property>
           <property name="value">
-           <number>60</number>
+           <number>75</number>
           </property>
           <property name="sliderPosition">
-           <number>60</number>
+           <number>75</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -172,12 +172,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="horizontalSliderVMax">
+         <widget class="QSlider" name="horizontalSliderZMax">
           <property name="maximum">
            <number>255</number>
           </property>
           <property name="value">
-           <number>255</number>
+           <number>125</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

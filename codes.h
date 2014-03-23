@@ -1,13 +1,13 @@
 #ifndef CODES_H
 #define CODES_H
 
-#define H_MAX 1
-#define H_MIN 2
+#define X_MAX 1
+#define X_MIN 2
 
-#define S_MAX 3
-#define S_MIN 4
+#define Y_MAX 3
+#define Y_MIN 4
 
-#define V_MAX 5
-#define V_MIN 6
+#define Z_MAX 5
+#define Z_MIN 6
 
 #endif // CODES_H

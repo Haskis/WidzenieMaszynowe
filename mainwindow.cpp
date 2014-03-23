@@ -6,12 +6,12 @@ MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
-  hMin=0;
-  sMin=100;
-  vMin=60;
-  hMax=20;
-  sMax=150;
-  vMax=255;
+  xMin  = 0;
+  xMax  = 255;
+  yMin = 95;
+  yMax = 146;
+  zMin= 133;
+  zMax = 218;
 
   mySettingsWidget = new SettingsWidget();
   ui->setupUi(this);
@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
   frameRefreshTimer = new QTimer(this);
   refreshTime = 150;
   frameRefreshTimer->start(refreshTime);
+
   connect(frameRefreshTimer,SIGNAL(timeout()),this,SLOT(getAndProceedFrame()));
 
   connect(mySettingsWidget,SIGNAL(sliderValueChanged(int,int)),this,SLOT(valuesChanged(int,int)));
@@ -54,20 +55,26 @@ void MainWindow::getAndProceedFrame(){
 
 //Zgarnij klatkę i rozbij ją na kanały, wykorzystaj tylko jeden kanał
   myVideoCapture >> oryginalFrame;
-  cv::split(oryginalFrame,channels);
-  processedFrame = channels[ui->spinBoxChannelChoose->value()];
+  cv::cvtColor(oryginalFrame,processedFrame,CV_RGB2YCrCb);
+  qDebug()<<"xMax"<<xMax;
+  qDebug()<<"yMax"<<yMax;
+  qDebug()<<"zMax"<<zMax;
+  qDebug()<<"xMin"<<xMin;
+  qDebug()<<"yMin"<<yMin;
+  qDebug()<<"zMin"<<zMin;
+  cv::inRange(processedFrame,cv::Scalar(xMin,yMin,zMin),cv::Scalar(xMax,yMax,zMax),processedFrame);
 
 //Ogranicz obraz zainteresowania i narysuj go na obrazie oryginalnym
-  processedFrame = processedFrame(cv::Rect(0, 0, 200, 200));
-  cv::rectangle(oryginalFrame,cv::Rect(0, 0, 200, 200),cv::Scalar(0,50,255),3);
+  processedFrame = processedFrame(cv::Rect(0, 0, 250, 300));
+  cv::rectangle(oryginalFrame,cv::Rect(0, 0, 250, 300),cv::Scalar(0,50,255),3);
 
 //Binearyzacja na podstawie wartości suwaka
-  cv::threshold(processedFrame,processedFrame,ui->horizontalSliderThreshold->value(),255,CV_THRESH_BINARY_INV);
-  //cv::erode(processedFrame,processedFrame,cv::Mat());
-  //cv::dilate(processedFrame,processedFrame,cv::Mat());
+  //cv::threshold(processedFrame,processedFrame,ui->horizontalSliderThreshold->value(),255,CV_THRESH_BINARY_INV);
+  cv::erode(processedFrame,processedFrame,cv::Mat());
+  cv::dilate(processedFrame,processedFrame,cv::Mat());
 
 //Znajdz wszystkie kontury
-  cv::findContours(processedFrame,countursArray,CV_RETR_CCOMP, CV_CHAIN_APPROX_NONE);
+ cv::findContours(processedFrame,countursArray,CV_RETR_CCOMP, CV_CHAIN_APPROX_NONE);
 
 //Zamien kodowanie obrazu, aby mozna bylo rysowac kolorowo
   cv::cvtColor(processedFrame,processedFrame,CV_GRAY2RGB);
@@ -82,10 +89,8 @@ void MainWindow::getAndProceedFrame(){
       //Znajdz punkty zewnetrzne dłoni
       cv::convexHull(handCountur,hullCounturIndexes);
       for(int i=0;i<hullCounturIndexes.size();i++){
-        hullCountur.push_back(handCountur[hullCounturIndexes[i]]);
+          hullCountur.push_back(handCountur[hullCounturIndexes[i]]);
       }
-
-
       //Usuń punkty zewnetrzne zbyt blisko siebie
       for(int i=0;i<hullCountur.size()-1;i++){
 
@@ -93,12 +98,27 @@ void MainWindow::getAndProceedFrame(){
                                 (hullCountur[i].x-hullCountur[i+1].x)+
                                 (hullCountur[i].y-hullCountur[i+1].y)*
                                 (hullCountur[i].y-hullCountur[i+1].y));
-          if(distance<25){
-              ;//i++;
+          if(distance<0){
+
             }
           else
             hullCounturAfter.push_back(hullCountur[i]);
         }
+
+
+      cv::Point2f circleCenter;
+      float radious;
+      cv::Moments moment;
+      moment = cv::moments(hullCountur);
+      cv::minEnclosingCircle(hullCountur,circleCenter, radious);
+
+
+//      circleCenter.x = int(moment.m10/moment.m00);
+//      circleCenter.y = int(moment.m01/moment.m00);
+
+//      radious /= 1.2;
+      cv::circle(processedFrame,circleCenter,radious,cv::Scalar(255,0,255));
+
       countursArrayOutside.push_back(hullCounturAfter);
 
       //Znajdz punkty wewnetrzne dłoni
@@ -106,6 +126,7 @@ void MainWindow::getAndProceedFrame(){
       for(int i=0;i<defects.size();i++){
           qDebug()<<"I "<<i<<" "<<defects[i][3];
           if(defects[i][3]>20*256.0)
+            if(handCountur[defects[i][2]].y<circleCenter.y+0.5*radious)
             defectsCountur.push_back(handCountur[defects[i][2]]);
       }
 
@@ -114,28 +135,16 @@ void MainWindow::getAndProceedFrame(){
       cv::drawContours(processedFrame,countursArrayOutside,-1,cv::Scalar(0,255,0),2);
       cv::drawContours(processedFrame,countursArrayInside,-1,cv::Scalar(0,0,255),2);
 
-
       break;
     }
 
-   // qDebug()<<countur.size()<<hullPoints.size()<<convexPoints.size();
 
-    //cv::convexityDefects(countur,hullPoints,convexPoints);
-    //convexPointsArray.push_back(convexPoints);
-    //cv::drawContours(processedFrame,convexPointsArray,-1,cv::Scalar(255,0,0),2);
+  std::string number = QString::number(defectsCountur.size()).toStdString();
 
-
-
+  cv::putText(oryginalFrame,number,cv::Point(20,20),1,1,cv::Scalar(0,0,255));
 
   cv::imshow("OryginalImage",oryginalFrame);
   cv::imshow("ProcessedImage",processedFrame);
-
-  qDebug()<<"HMax:"<<hMax;
-  qDebug()<<"HMin:"<<hMin;
-  qDebug()<<"SMax:"<<sMax;
-  qDebug()<<"SMin:"<<sMin;
-  qDebug()<<"VMax:"<<vMax;
-  qDebug()<<"VMin:"<<vMin;
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -144,24 +153,25 @@ void MainWindow::on_actionSettings_triggered()
 }
 
 void MainWindow::valuesChanged(int id, int value){
+  qDebug()<<"CHANGED";
   switch (id){
-    case H_MAX:
-      hMax=value;
+    case X_MIN:
+      xMin=value;
       return;
-    case H_MIN:
-      hMin=value;
+    case X_MAX:
+      xMax=value;
       return;
-    case S_MAX:
-      sMax=value;
+    case Y_MIN:
+      yMin=value;
       return;
-    case S_MIN:
-      sMin=value;
+    case Y_MAX:
+      yMax=value;
       return;
-    case V_MAX:
-      vMax=value;
+    case Z_MIN:
+      zMin=value;
       return;
-    case V_MIN:
-      vMin=value;
+    case Z_MAX:
+      zMax=value;
       return;
     }
 }

@@ -23,14 +23,14 @@ signals:
   void sliderValueChanged(int id, int value);
 
 public slots:
-  void hMaxValueChanged(int value);
-  void hMinValueChanged(int value);
+  void xMaxValueChanged(int value);
+  void xMinValueChanged(int value);
 
-  void sMaxValueChanged(int value);
-  void sMinValueChanged(int value);
+  void yMaxValueChanged(int value);
+  void yMinValueChanged(int value);
 
-  void vMaxValueChanged(int value);
-  void vMinValueChanged(int value);
+  void zMaxValueChanged(int value);
+  void zMinValueChanged(int value);
 
 };
 

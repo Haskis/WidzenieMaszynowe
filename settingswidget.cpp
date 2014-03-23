@@ -8,14 +8,14 @@ SettingsWidget::SettingsWidget(QWidget *parent) :
   ui->setupUi(this);
 
   //Signal Slots
-  connect(ui->horizontalSliderHMax,SIGNAL(valueChanged(int)),this,SLOT(hMaxValueChanged(int)));
-  connect(ui->horizontalSliderHMin,SIGNAL(valueChanged(int)),this,SLOT(hMinValueChanged(int)));
+  connect(ui->horizontalSliderXMax,SIGNAL(valueChanged(int)),this,SLOT(xMaxValueChanged(int)));
+  connect(ui->horizontalSliderXMin,SIGNAL(valueChanged(int)),this,SLOT(xMinValueChanged(int)));
 
-  connect(ui->horizontalSliderSMax,SIGNAL(valueChanged(int)),this,SLOT(sMaxValueChanged(int)));
-  connect(ui->horizontalSliderSMin,SIGNAL(valueChanged(int)),this,SLOT(sMinValueChanged(int)));
+  connect(ui->horizontalSliderYMax,SIGNAL(valueChanged(int)),this,SLOT(yMaxValueChanged(int)));
+  connect(ui->horizontalSliderYMin,SIGNAL(valueChanged(int)),this,SLOT(yMinValueChanged(int)));
 
-  connect(ui->horizontalSliderVMax,SIGNAL(valueChanged(int)),this,SLOT(vMaxValueChanged(int)));
-  connect(ui->horizontalSliderVMin,SIGNAL(valueChanged(int)),this,SLOT(vMinValueChanged(int)));
+  connect(ui->horizontalSliderZMax,SIGNAL(valueChanged(int)),this,SLOT(zMaxValueChanged(int)));
+  connect(ui->horizontalSliderZMin,SIGNAL(valueChanged(int)),this,SLOT(zMinValueChanged(int)));
 }
 
 SettingsWidget::~SettingsWidget()
@@ -24,26 +24,26 @@ SettingsWidget::~SettingsWidget()
 }
 
 
-void SettingsWidget::hMaxValueChanged(int value){
-  emit sliderValueChanged(H_MAX,value);
+void SettingsWidget::xMaxValueChanged(int value){
+  emit sliderValueChanged(X_MAX,value);
 }
 
-void SettingsWidget::hMinValueChanged(int value){
-  emit sliderValueChanged(H_MIN,value);
+void SettingsWidget::xMinValueChanged(int value){
+  emit sliderValueChanged(X_MIN,value);
 }
 
-void SettingsWidget::sMaxValueChanged(int value){
-  emit sliderValueChanged(S_MAX,value);
+void SettingsWidget::yMaxValueChanged(int value){
+  emit sliderValueChanged(Y_MAX,value);
 }
 
-void SettingsWidget::sMinValueChanged(int value){
-  emit sliderValueChanged(S_MIN,value);
+void SettingsWidget::yMinValueChanged(int value){
+  emit sliderValueChanged(Y_MIN,value);
 }
 
-void SettingsWidget::vMaxValueChanged(int value){
-  emit sliderValueChanged(V_MAX,value);
+void SettingsWidget::zMaxValueChanged(int value){
+  emit sliderValueChanged(Z_MAX,value);
 }
 
-void SettingsWidget::vMinValueChanged(int value){
-  emit sliderValueChanged(V_MIN,value);
+void SettingsWidget::zMinValueChanged(int value){
+  emit sliderValueChanged(Z_MIN,value);
 }
