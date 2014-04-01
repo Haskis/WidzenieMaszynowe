@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
+  //Default Y(x) Cr(y) Cb(z) values
   xMin  = 0;
   xMax  = 255;
   yMin = 95;
@@ -15,21 +16,24 @@ MainWindow::MainWindow(QWidget *parent) :
 
   mySettingsWidget = new SettingsWidget();
   ui->setupUi(this);
+
+  //Check if video is opened and display it on Main Window
   if(!myVideoCapture.open(0)){
     ui->labelVideoStatus->setText("Could Not Open Video");
   }
   else
     ui->labelVideoStatus->setText("Video device opened");
 
+
   cv::namedWindow("OryginalImage");
   cv::namedWindow("ProcessedImage");
 
+  //Get frame every refreshTime miliseconds
   frameRefreshTimer = new QTimer(this);
   refreshTime = 150;
   frameRefreshTimer->start(refreshTime);
 
   connect(frameRefreshTimer,SIGNAL(timeout()),this,SLOT(getAndProceedFrame()));
-
   connect(mySettingsWidget,SIGNAL(sliderValueChanged(int,int)),this,SLOT(valuesChanged(int,int)));
 }
 
@@ -53,28 +57,43 @@ void MainWindow::getAndProceedFrame(){
   cv::vector<cv::Point> defectsCountur;
   cv::vector<cv::Mat> channels;
 
-//Zgarnij klatkę i rozbij ją na kanały, wykorzystaj tylko jeden kanał
+  //Go into YCrCb base
   myVideoCapture >> oryginalFrame;
   cv::cvtColor(oryginalFrame,processedFrame,CV_RGB2YCrCb);
-  qDebug()<<"xMax"<<xMax;
-  qDebug()<<"yMax"<<yMax;
-  qDebug()<<"zMax"<<zMax;
-  qDebug()<<"xMin"<<xMin;
-  qDebug()<<"yMin"<<yMin;
-  qDebug()<<"zMin"<<zMin;
-  cv::inRange(processedFrame,cv::Scalar(xMin,yMin,zMin),cv::Scalar(xMax,yMax,zMax),processedFrame);
+//  qDebug()<<"xMax"<<xMax;
+//  qDebug()<<"yMax"<<yMax;
+//  qDebug()<<"zMax"<<zMax;
+//  qDebug()<<"xMin"<<xMin;
+//  qDebug()<<"yMin"<<yMin;
+//  qDebug()<<"zMin"<<zMin;
 
-//Ogranicz obraz zainteresowania i narysuj go na obrazie oryginalnym
+  //Get only part of image
   processedFrame = processedFrame(cv::Rect(0, 0, 250, 300));
+//Wersja z YCrCb
+  if(ui->spinBoxVersion->value() == 0){
+  cv::inRange(processedFrame,cv::Scalar(xMin,yMin,zMin),cv::Scalar(xMax,yMax,zMax),processedFrame);
+    }
+//Wersja z kanałami
+  else{
+  //Background removal
+  if(backgroundFrame.data != NULL){
+      cv::absdiff(processedFrame,backgroundFrame,processedFrame);
+    }
+  cv::split(processedFrame,channels);
+
+  processedFrame = channels[ui->spinBoxChannelChoose->value()];
+  //Binearyzacja na podstawie wartości suwaka
+  cv::threshold(processedFrame,processedFrame,ui->horizontalSliderThreshold->value(),255,CV_THRESH_BINARY);
+  //cv::erode(processedFrame,processedFrame,cv::Mat());
+  //cv::dilate(processedFrame,processedFrame,cv::Mat());
+    }
+//Koniec róznych wersji
+
+//Narysuj obraz zainteresowania na obrazie oryginalnym
   cv::rectangle(oryginalFrame,cv::Rect(0, 0, 250, 300),cv::Scalar(0,50,255),3);
 
-//Binearyzacja na podstawie wartości suwaka
-  //cv::threshold(processedFrame,processedFrame,ui->horizontalSliderThreshold->value(),255,CV_THRESH_BINARY_INV);
-  cv::erode(processedFrame,processedFrame,cv::Mat());
-  cv::dilate(processedFrame,processedFrame,cv::Mat());
-
 //Znajdz wszystkie kontury
- cv::findContours(processedFrame,countursArray,CV_RETR_CCOMP, CV_CHAIN_APPROX_NONE);
+  cv::findContours(processedFrame,countursArray,CV_RETR_CCOMP, CV_CHAIN_APPROX_NONE);
 
 //Zamien kodowanie obrazu, aby mozna bylo rysowac kolorowo
   cv::cvtColor(processedFrame,processedFrame,CV_GRAY2RGB);
@@ -92,26 +111,25 @@ void MainWindow::getAndProceedFrame(){
           hullCountur.push_back(handCountur[hullCounturIndexes[i]]);
       }
       //Usuń punkty zewnetrzne zbyt blisko siebie
-      for(int i=0;i<hullCountur.size()-1;i++){
+//      for(int i=0;i<hullCountur.size()-1;i++){
 
-          float distance = sqrt((hullCountur[i].x-hullCountur[i+1].x)*
-                                (hullCountur[i].x-hullCountur[i+1].x)+
-                                (hullCountur[i].y-hullCountur[i+1].y)*
-                                (hullCountur[i].y-hullCountur[i+1].y));
-          if(distance<0){
+//          float distance = sqrt((hullCountur[i].x-hullCountur[i+1].x)*
+//                                (hullCountur[i].x-hullCountur[i+1].x)+
+//                                (hullCountur[i].y-hullCountur[i+1].y)*
+//                                (hullCountur[i].y-hullCountur[i+1].y));
+//          if(distance<0){
 
-            }
-          else
+//            }
+//          else
             hullCounturAfter.push_back(hullCountur[i]);
-        }
+//        }
 
 
       cv::Point2f circleCenter;
       float radious;
-      cv::Moments moment;
-      moment = cv::moments(hullCountur);
+      //cv::Moments moment;
+      //moment = cv::moments(hullCountur);
       cv::minEnclosingCircle(hullCountur,circleCenter, radious);
-
 
 //      circleCenter.x = int(moment.m10/moment.m00);
 //      circleCenter.y = int(moment.m01/moment.m00);
@@ -178,4 +196,12 @@ void MainWindow::valuesChanged(int id, int value){
 
 float pointsDistance(cv::Point x, cv::Point y){
   return sqrt((x.x-y.x)*(x.x-y.x)+(x.y-y.y)*(x.y-y.y));
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+  qDebug()<<"BACK";
+    myVideoCapture>>backgroundFrame;
+
+    backgroundFrame = backgroundFrame(cv::Rect(0, 0, 250, 300));
 }

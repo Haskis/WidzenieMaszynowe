@@ -49,6 +49,7 @@ private:
   void getAndProceedFrame();
   void on_actionSettings_triggered();
   void valuesChanged(int id, int value);
+  void on_pushButton_clicked();
 };
 
 #endif // MAINWINDOW_H
