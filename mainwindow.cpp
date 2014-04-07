@@ -59,7 +59,6 @@ void MainWindow::getAndProceedFrame(){
 
   //Go into YCrCb base
   myVideoCapture >> oryginalFrame;
-  cv::cvtColor(oryginalFrame,processedFrame,CV_RGB2YCrCb);
 //  qDebug()<<"xMax"<<xMax;
 //  qDebug()<<"yMax"<<yMax;
 //  qDebug()<<"zMax"<<zMax;
@@ -67,20 +66,25 @@ void MainWindow::getAndProceedFrame(){
 //  qDebug()<<"yMin"<<yMin;
 //  qDebug()<<"zMin"<<zMin;
 
+  oryginalFrame.copyTo(processedFrame);
   //Get only part of image
   processedFrame = processedFrame(cv::Rect(0, 0, 250, 300));
 //Wersja z YCrCb
   if(ui->spinBoxVersion->value() == 0){
+
+  cv::cvtColor(oryginalFrame,processedFrame,CV_RGB2YCrCb);
   cv::inRange(processedFrame,cv::Scalar(xMin,yMin,zMin),cv::Scalar(xMax,yMax,zMax),processedFrame);
     }
 //Wersja z kanałami
   else{
-  //Background removal
+  //Background removal,
   if(backgroundFrame.data != NULL){
       cv::absdiff(processedFrame,backgroundFrame,processedFrame);
     }
   cv::split(processedFrame,channels);
-
+    cv::imshow("R",channels[0]);
+    cv::imshow("G",channels[1]);
+    cv::imshow("B",channels[2]);
   processedFrame = channels[ui->spinBoxChannelChoose->value()];
   //Binearyzacja na podstawie wartości suwaka
   cv::threshold(processedFrame,processedFrame,ui->horizontalSliderThreshold->value(),255,CV_THRESH_BINARY);
