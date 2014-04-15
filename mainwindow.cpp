@@ -59,6 +59,9 @@ void MainWindow::getAndProceedFrame(){
 
   //Go into YCrCb base
   myVideoCapture >> oryginalFrame;
+
+  cv::blur(oryginalFrame,oryginalFrame,cv::Size(3,3));
+  cv::blur(oryginalFrame,oryginalFrame,cv::Size(3,3));
 //  qDebug()<<"xMax"<<xMax;
 //  qDebug()<<"yMax"<<yMax;
 //  qDebug()<<"zMax"<<zMax;
@@ -69,12 +72,14 @@ void MainWindow::getAndProceedFrame(){
   oryginalFrame.copyTo(processedFrame);
   //Get only part of image
   processedFrame = processedFrame(cv::Rect(0, 0, 250, 300));
+
 //Wersja z YCrCb
   if(ui->spinBoxVersion->value() == 0){
 
-  cv::cvtColor(oryginalFrame,processedFrame,CV_RGB2YCrCb);
+  cv::cvtColor(processedFrame,processedFrame,CV_RGB2YCrCb);
   cv::inRange(processedFrame,cv::Scalar(xMin,yMin,zMin),cv::Scalar(xMax,yMax,zMax),processedFrame);
     }
+
 //Wersja z kanałami
   else{
   //Background removal,
@@ -82,9 +87,6 @@ void MainWindow::getAndProceedFrame(){
       cv::absdiff(processedFrame,backgroundFrame,processedFrame);
     }
   cv::split(processedFrame,channels);
-    cv::imshow("R",channels[0]);
-    cv::imshow("G",channels[1]);
-    cv::imshow("B",channels[2]);
   processedFrame = channels[ui->spinBoxChannelChoose->value()];
   //Binearyzacja na podstawie wartości suwaka
   cv::threshold(processedFrame,processedFrame,ui->horizontalSliderThreshold->value(),255,CV_THRESH_BINARY);
@@ -146,7 +148,6 @@ void MainWindow::getAndProceedFrame(){
       //Znajdz punkty wewnetrzne dłoni
       cv::convexityDefects(handCountur,hullCounturIndexes,defects);
       for(int i=0;i<defects.size();i++){
-          qDebug()<<"I "<<i<<" "<<defects[i][3];
           if(defects[i][3]>20*256.0)
             if(handCountur[defects[i][2]].y<circleCenter.y+0.5*radious)
             defectsCountur.push_back(handCountur[defects[i][2]]);
@@ -175,24 +176,29 @@ void MainWindow::on_actionSettings_triggered()
 }
 
 void MainWindow::valuesChanged(int id, int value){
-  qDebug()<<"CHANGED";
   switch (id){
     case X_MIN:
+      qDebug()<<"X_MIN";
       xMin=value;
       return;
     case X_MAX:
+      qDebug()<<"X_MAX";
       xMax=value;
       return;
     case Y_MIN:
+      qDebug()<<"Y_MIN";
       yMin=value;
       return;
     case Y_MAX:
+      qDebug()<<"Y_MAX";
       yMax=value;
       return;
     case Z_MIN:
+      qDebug()<<"Z_MIN";
       zMin=value;
       return;
     case Z_MAX:
+      qDebug()<<"Z_MAX";
       zMax=value;
       return;
     }
